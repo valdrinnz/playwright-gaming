@@ -1,18 +1,52 @@
 import { test, expect } from '@playwright/test';
 
-test('has title', async ({ page }) => {
-  await page.goto('https://playwright.dev/');
+test('Verify Blog Categories', async ({ page }) => {
+  test.setTimeout(60000); 
 
-  // Expect a title "to contain" a substring.
-  await expect(page).toHaveTitle(/Playwright/);
-});
+  const locators = {
+    blogButton: 'button[data-element-description="nav-blog-button"]',
+    blogCategoriesHeading: 'h3:has-text("Blog Categories")',
+    blogCategoriesList: 'h3:has-text("Blog Categories") + ul li a',
+  };
 
-test('get started link', async ({ page }) => {
-  await page.goto('https://playwright.dev/');
+  const expectedCategories = [
+    "Card Games",
+    "Updates",
+    "Sweepstakes",
+    "Mahjong",
+    "Brain Games",
+    "Casino Games",
+    "Promotions",
+    "Game Shows",
+    "Puzzle Games",
+    "Crosswords",
+    "Sudoku",
+    "Word Games",
+    "General",
+    "Pool Games",
+    "All"
+  ];
 
-  // Click the get started link.
-  await page.getByRole('link', { name: 'Get started' }).click();
+  console.log('Navigating to the home page...');
+  await page.goto('/'); 
+  await expect(page).toHaveTitle(/Arkadium/);
 
-  // Expects page to have a heading with the name of Installation.
-  await expect(page.getByRole('heading', { name: 'Installation' })).toBeVisible();
+  console.log('Locating the blog button...');
+  const blogButton = page.locator(locators.blogButton);
+  await expect(blogButton).toBeVisible();
+  await blogButton.click();
+
+  console.log('Validating the blog categories heading...');
+  const blogCategoriesHeading = page.locator(locators.blogCategoriesHeading);
+  await expect(blogCategoriesHeading).toBeVisible();
+  await expect(blogCategoriesHeading).toHaveText('Blog Categories');
+
+  console.log('Extracting blog categories...');
+  const blogCategoriesLocator = page.locator(locators.blogCategoriesList);
+  const actualCategories = await blogCategoriesLocator.allTextContents();
+
+  console.log('Verifying categories...');
+  expect(actualCategories).toEqual(expectedCategories);
+
+  console.log('Blog categories verified successfully!');
 });
